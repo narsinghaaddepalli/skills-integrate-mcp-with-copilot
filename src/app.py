@@ -76,7 +76,7 @@ activities = {
         "participants": ["charlotte@mergington.edu", "henry@mergington.edu"]
     },
     "GitHub Skills": {
-        "description": "Learn practical coding and collaboration skills through GitHub. Part of the GitHub Certifications program",
+        "description": "Learn practical coding and collaboration skills through GitHub - part of the GitHub Certifications program",
         "schedule": "Wednesdays, 3:00 PM - 4:30 PM",
         "max_participants": 25,
         "participants": []
