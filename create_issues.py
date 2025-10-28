@@ -22,7 +22,7 @@ def parse_issue_template(filepath):
     - body: The full content as the issue body
     - labels: List of labels based on the directory structure
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
     
     # Extract the first heading as title
@@ -40,9 +40,10 @@ def parse_issue_template(filepath):
     
     # Determine labels based on directory structure
     labels = []
-    if 'enhancement' in str(filepath):
+    parent_dir = filepath.parent.name
+    if parent_dir == 'enhancement':
         labels.append('enhancement')
-    elif 'bug' in str(filepath):
+    elif parent_dir == 'bug':
         labels.append('bug')
     
     return {
@@ -62,6 +63,19 @@ def create_github_issue(title, body, labels, dry_run=False):
         labels: List of label strings
         dry_run: If True, only print what would be created
     """
+    # Basic validation to prevent command injection
+    if not title or not isinstance(title, str):
+        print(f"✗ Invalid title: {title}", file=sys.stderr)
+        return False
+    
+    if not body or not isinstance(body, str):
+        print(f"✗ Invalid body for issue: {title}", file=sys.stderr)
+        return False
+    
+    if not isinstance(labels, list):
+        print(f"✗ Invalid labels for issue: {title}", file=sys.stderr)
+        return False
+    
     if dry_run:
         print(f"\n{'='*60}")
         print(f"TITLE: {title}")
@@ -90,14 +104,30 @@ def create_github_issue(title, body, labels, dry_run=False):
 
 def main():
     """Main function to create issues from templates."""
-    # Check for dry-run flag
-    dry_run = '--dry-run' in sys.argv
+    import argparse
     
-    if dry_run:
+    parser = argparse.ArgumentParser(
+        description='Create GitHub issues from markdown templates'
+    )
+    parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Preview issues without creating them'
+    )
+    parser.add_argument(
+        '--templates-dir',
+        type=str,
+        default='.github/steps/1-step-issues',
+        help='Path to directory containing issue templates (default: .github/steps/1-step-issues)'
+    )
+    
+    args = parser.parse_args()
+    
+    if args.dry_run:
         print("Running in DRY-RUN mode - no issues will be created\n")
     
     # Find all issue template files
-    base_path = Path(__file__).parent / '.github' / 'steps' / '1-step-issues'
+    base_path = Path(__file__).parent / args.templates_dir
     
     if not base_path.exists():
         print(f"Error: Issue templates directory not found at {base_path}", file=sys.stderr)
@@ -124,12 +154,12 @@ def main():
             issue_data['title'],
             issue_data['body'],
             issue_data['labels'],
-            dry_run=dry_run
+            dry_run=args.dry_run
         ):
             success_count += 1
     
     print(f"\n{'='*60}")
-    if dry_run:
+    if args.dry_run:
         print(f"DRY-RUN complete: {success_count}/{len(template_files)} issues would be created")
         print("Run without --dry-run to create issues")
     else:

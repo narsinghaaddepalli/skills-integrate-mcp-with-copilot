@@ -27,6 +27,25 @@ To actually create the GitHub issues in the repository:
 python3 create_issues.py
 ```
 
+### Command-Line Options
+
+```
+usage: create_issues.py [-h] [--dry-run] [--templates-dir TEMPLATES_DIR]
+
+options:
+  -h, --help            Show help message and exit
+  --dry-run             Preview issues without creating them
+  --templates-dir TEMPLATES_DIR
+                        Path to directory containing issue templates 
+                        (default: .github/steps/1-step-issues)
+```
+
+Example with custom template directory:
+
+```bash
+python3 create_issues.py --templates-dir /path/to/templates --dry-run
+```
+
 This will:
 1. Read all markdown files from `.github/steps/1-step-issues/`
 2. Parse each template to extract the title, body, and labels
